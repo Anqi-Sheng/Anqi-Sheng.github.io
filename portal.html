@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ===== VIDEO BACKGROUND ===== */
+    .video-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -3;
+    }
+
+    /* ===== PARTICLE OVERLAY ===== */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.8);
+      animation: float 10s linear infinite, glow 3s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(255,255,255,0.6);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    @keyframes glow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== TITLE ANIMATION ===== */
+    .portal-content {
+      position: relative;
+      z-index: 1;
+      color: white;
+      text-align: center;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 0 12px rgba(255,255,255,0.8);
+      animation: fadeInUp 1.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(-50%); }
+    }
+
+    .portal-title {
+      font-size: 3rem;
+      background: linear-gradient(90deg, #ff00cc, #00ffff, #ffcc00, #ff00cc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 300%;
+      animation: shimmer 6s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .portal-subtitle {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      opacity: 0;
+      animation: fadeIn 3s ease forwards 1.2s;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ===== RETURN BUTTON ===== */
+    .portal-btn {
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      padding: 0.8rem 2rem;
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.3s ease;
+      opacity: 0;
+      animation: fadeIn 3s ease forwards 2s;
+    }
+
+    .portal-btn:hover {
+      background: #00ffff;
+      color: black;
+      box-shadow: 0 0 20px #00ffff;
+    }
+
+    /* ===== FLOATING MUSIC BUTTON ===== */
+    .music-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid white;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+
+    .music-btn.playing {
+      animation: pulseRGB 2.5s infinite;
+    }
+
+    @keyframes pulseRGB {
+      0% { box-shadow: 0 0 10px 2px #ff0000; border-color: #ff0000; }
+      25% { box-shadow: 0 0 15px 2px #00ff00; border-color: #00ff00; }
+      50% { box-shadow: 0 0 20px 2px #0000ff; border-color: #0000ff; }
+      75% { box-shadow: 0 0 15px 2px #ff00ff; border-color: #ff00ff; }
+      100% { box-shadow: 0 0 10px 2px #ff0000; border-color: #ff0000; }
+    }
+
+    .music-icon {
+      color: white;
+      font-size: 1.6rem;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- VIDEO BACKGROUND -->
+  <video class="video-bg" autoplay muted loop playsinline>
+    <source src="videos/portalbg.mp4" type="video/mp4">
+  </video>
+
+  <!-- PARTICLES -->
+  <div class="particles" id="particles"></div>
+
+  <!-- CONTENT -->
+  <div class="portal-content">
+    <h1 class="portal-title">Welcome to the Portal</h1>
+    <p class="portal-subtitle">Step into the rhythm of color and sound.</p>
+    <button class="portal-btn" onclick="window.location.href='index.html'">Return Home</button>
+  </div>
+
+  <!-- MUSIC BUTTON -->
+  <button id="musicBtn" class="music-btn" title="Toggle Music">
+    <span class="music-icon">🎵</span>
+  </button>
+
+  <!-- AUDIO -->
+  <audio id="bgMusic" src="music/LJShopKeeperRemix1.mp3"></audio>
+
+  <script>
+    // ===== FLOATING MUSIC BUTTON LOGIC =====
+    const musicBtn = document.getElementById('musicBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    let firstPlay = true;
+
+    musicBtn.addEventListener('click', () => {
+      if (firstPlay) {
+        bgMusic.currentTime = 0;
+        bgMusic.play();
+        firstPlay = false;
+        musicBtn.classList.add('playing');
+      } else if (bgMusic.paused) {
+        bgMusic.play();
+        musicBtn.classList.add('playing');
+      } else {
+        bgMusic.pause();
+        musicBtn.classList.remove('playing');
+      }
+    });
+
+    // ===== CREATE PARTICLES =====
+    const container = document.getElementById('particles');
+    const numParticles = 40;
+    for (let i = 0; i < numParticles; i++) {
+      const p = document.createElement('div');
+      p.classList.add('particle');
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (8 + Math.random() * 6) + 's';
+      p.style.animationDelay = Math.random() * 6 + 's';
+      p.style.opacity = 0.3 + Math.random() * 0.7;
+      container.appendChild(p);
+    }
+  </script>
+
+</body>
+</html>
